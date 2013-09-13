@@ -122,11 +122,19 @@ def _get_error_info(data):
     if is_41:
         # version 4.1
         sqlstate = data[4:9].decode("utf8")
-        errorvalue = data[9:].decode("utf8")
+        try:
+            errorvalue = data[9:].decode("utf8")
+        except UnicodeDecodeError:
+            errorvalue = repr(data[9:])
         return (errno, sqlstate, errorvalue)
     else:
         # version 4.0
-        return (errno, None, data[3:].decode("utf8"))
+        try:
+            errorvalue = data[3:].decode("utf8")
+        except UnicodeDecodeError:
+            errorvalue = repr(data[3:])
+        return (errno, None, errorvalue)
+
 
 def _check_mysql_exception(errinfo):
     errno, sqlstate, errorvalue = errinfo 
